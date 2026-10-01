@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Fantasy Turn-Based RPG - Ultimate Edition</title>
+    <style>
+        :root {
+            --bg-dark: #0a0b10;
+            --bg-panel: #141722;
+            --bg-card: #1c2030;
+            --accent-gold: #d4af37;
+            --accent-red: #a83232;
+            --accent-blue: #326ea8;
+            --accent-green: #32a852;
+            --accent-purple: #7032a8;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #2e354a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .currency-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 0.95rem;
+        }
+
+        .currency {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .currency.gold { color: var(--accent-gold); }
+        .currency.gems { color: #38bdf8; }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* --- BATTLE SCREEN --- */
+        .battle-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            gap: 15px;
+            height: 600px;
+        }
+
+        .side-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            color: var(--accent-gold);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+            margin-bottom: 4px;
+        }
+
+        .battle-field {
+            background: radial-gradient(circle, #1a2035 0%, #0d0f18 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .battle-zone {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 200px;
+        }
+
+        .combatant-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            width: 140px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .combatant-card.active-turn {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            transform: translateY(-5px);
+        }
+
+        .combatant-card.targetable {
+            cursor: pointer;
+            border-color: var(--accent-red);
+        }
+
+        .combatant-card.targetable:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-bar {
+            height: 8px;
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+            position: relative;
+        }
+
+        .stat-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s;
+        }
+
+        .stat-fill.hp { background: var(--accent-red); }
+        .stat-fill.mp { background: var(--accent-blue); }
+
+        .battle-controls {
+            background: rgba(10, 11, 16, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: var(--border-color);
+            border-color: var(--accent-gold);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .log-box {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .log-entry { padding: 3px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+        .log-entry.player { color: #60a5fa; }
+        .log-entry.enemy { color: #f87171; }
+        .log-entry.system { color: var(--accent-gold); }
+
+        /* --- ROSTER TAB --- */
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .unit-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .unit-card.rarity-SSR { border-color: var(--accent-gold); }
+        .unit-card.rarity-SR { border-color: var(--accent-purple); }
+        .unit-card.rarity-R { border-color: var(--accent-blue); }
+
+        .unit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rarity-badge {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #000;
+        }
+
+        .rarity-SSR { color: var(--accent-gold); }
+        .rarity-SR { color: var(--accent-purple); }
+        .rarity-R { color: var(--accent-blue); }
+
+        /* --- GACHA TAB --- */
+        .gacha-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 40px;
+            flex: 1;
+            gap: 20px;
+        }
+
+        .gacha-banner {
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            background: linear-gradient(135deg, #2d1b4e 0%, #111827 100%);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(112, 50, 168, 0.3);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .gacha-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn-gacha {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: linear-gradient(180deg, var(--accent-gold) 0%, #997a15 100%);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+
+        .btn-gacha:active { transform: scale(0.96); }
+
+        .pull-result {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        /* --- QUEST & INVENTORY --- */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">⚔️ CHRONICLES OF SHADOW</div>
+        <div class="currency-bar">
+            <div class="currency gold">🪙 <span id="gold-val">1000</span></div>
+            <div class="currency gems">💎 <span id="gems-val">150</span></div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-btn active" onclick="switchTab('battle')">⚔️ Battle</div>
+        <div class="nav-btn" onclick="switchTab('roster')">🛡️ Hero Roster</div>
+        <div class="nav-btn" onclick="switchTab('gacha')">🔮 Summon</div>
+        <div class="nav-btn" onclick="switchTab('quests')">📜 Quests</div>
+        <div class="nav-btn" onclick="switchTab('inventory')">🎒 Inventory</div>
+    </nav>
+
+    <!-- BATTLE TAB -->
+    <div id="tab-battle" class="tab-content active">
+        <div class="battle-layout">
+            <div class="side-panel">
+                <div class="panel-title">Turn Timeline</div>
+                <div id="timeline-list" class="list-container"></div>
+            </div>
+
+            <div class="battle-field">
+                <div id="enemies-zone" class="battle-zone"></div>
+                <div id="heroes-zone" class="battle-zone"></div>
+
+                <div class="battle-controls">
+                    <button class="action-btn" id="btn-attack" onclick="selectAction('attack')">⚔️ Attack</button>
+                    <button class="action-btn" id="btn-skill" onclick="selectAction('skill')">✨ Skill</button>
+                    <button class="action-btn" id="btn-defend" onclick="selectAction('defend')">🛡️ Defend</button>
+                    <button class="action-btn" id="btn-auto" onclick="toggleAuto()">🤖 Auto Play</button>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-title">Combat Log</div>
+                <div id="combat-log" class="log-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROSTER TAB -->
+    <div id="tab-roster" class="tab-content">
+        <div id="roster-grid" class="roster-grid"></div>
+    </div>
+
+    <!-- GACHA TAB -->
+    <div id="tab-gacha" class="tab-content">
+        <div class="gacha-container">
+            <div class="gacha-banner">
+                <h2 style="color: var(--accent-gold); margin-bottom: 8px;">Covenant of the Abyss</h2>
+                <p style="color: var(--text-muted);">Summon powerful SSR heroes to aid your campaign!</p>
+                <p style="margin-top: 15px; font-size: 0.85rem;">Pity Counter: <span id="pity-count" style="color: var(--accent-gold);">0</span>/100</p>
+            </div>
+            <div class="gacha-actions">
+                <button class="btn-gacha" onclick="performSummon(1)">Summon 1x (10 💎)</button>
+                <button class="btn-gacha" onclick="performSummon(10)">Summon 10x (100 💎)</button>
+            </div>
+            <div id="summon-results" class="pull-result"></div>
+        </div>
+    </div>
+
+    <!-- QUESTS TAB -->
+    <div id="tab-quests" class="tab-content">
+        <div id="quest-list" class="list-container"></div>
+    </div>
+
+    <!-- INVENTORY TAB -->
+    <div id="tab-inventory" class="tab-content">
+        <div id="inventory-list" class="list-container"></div>
+    </div>
+
+    <script>
+        // --- GAME DATA STRUCTURES ---
+        const HERO_DATABASE = [
+            { id: 'h1', name: 'Valerius', title: 'Shadow Knight', rarity: 'SSR', icon: '🗡️', hp: 450, maxHp: 450, mp: 100, maxMp: 100, atk: 55, def: 30, spd: 18, skill: 'Shadow Strike' },
+            { id: 'h2', name: 'Aurelia', title: 'High Priestess', rarity: 'SR', icon: '🪄', hp: 320, maxHp: 320, mp: 180, maxMp: 180, atk: 35, def: 18, spd: 14, skill: 'Holy Light' },
+            { id: 'h3', name: 'Ignis', title: 'Pyromancer', rarity: 'SSR', icon: '🔥', hp: 280, maxHp: 280, mp: 200, maxMp: 200, atk: 65, def: 12, spd: 16, skill: 'Fireball' },
+            { id: 'h4', name: 'Kael', title: 'Rogue Archer', rarity: 'R', icon: '🏹', hp: 350, maxHp: 350, mp: 80, maxMp: 80, atk: 45, def: 20, spd: 22, skill: 'Multi-Shot' }
+        ];
+
+        const ENEMY_DATABASE = [
+            { id: 'e1', name: 'Skeleton Warrior', icon: '💀', hp: 300, maxHp: 300, mp: 0, maxMp: 0, atk: 40, def: 15, spd: 12 },
+            { id: 'e2', name: 'Abyssal Specter', icon: '👻', hp: 250, maxHp: 250, mp: 50, maxMp: 50, atk: 50, def: 10, spd: 15 },
+            { id: 'e3', name: 'Gargoyle Lord', icon: '🗿', hp: 600, maxHp: 600, mp: 0, maxMp: 0, atk: 60, def: 40, spd: 8 }
+        ];
+
+        let gameState = {
+            currencies: { gold: 1200, gems: 250 },
+            roster: JSON.parse(JSON.stringify([HERO_DATABASE[0], HERO_DATABASE[1]])),
+            inventory: [
+                { id: 'i1', name: 'Health Potion', count: 5, icon: '🧪', desc: 'Restores 150 HP' },
+                { id: 'i2', name: 'Mana Ether', count: 3, icon: '💧', desc: 'Restores 80 MP' }
+            ],
+            quests: [
+                { id: 'q1', name: 'Clear the Undead Crypt', reward: 500, done: false },
+                { id: 'q2', name: 'Summon 3 Heroes', reward: 50, gems: true, done: false }
+            ],
+            pity: 0,
+            autoPlay: false
+        };
+
+        let battleState = {
+            turnOrder: [],
+            activeUnitIndex: 0,
+            activeAction: null,
+            heroes: [],
+            enemies: []
+        };
+
+        // --- SYSTEM ENGINE ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'roster') renderRoster();
+            if (tabId === 'quests') renderQuests();
+            if (tabId === 'inventory') renderInventory();
+        }
+
+        function updateCurrencies() {
+            document.getElementById('gold-val').innerText = gameState.currencies.gold;
+            document.getElementById('gems-val').innerText = gameState.currencies.gems;
+            document.getElementById('pity-count').innerText = gameState.pity;
+        }
+
+        function logMessage(msg, type = 'system') {
+            const logBox = document.getElementById('combat-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerText = `> ${msg}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // --- BATTLE SYSTEM ---
+        function initBattle() {
+            battleState.heroes = JSON.parse(JSON.stringify(gameState.roster));
+            battleState.enemies = JSON.parse(JSON.stringify(ENEMY_DATABASE.slice(0, 2)));
+
+            logMessage("A new encounter begins!", "system");
+            calculateTurnOrder();
+            renderBattlefield();
+            startTurn();
+        }
+
+        function calculateTurnOrder() {
+            const allUnits = [...battleState.heroes, ...battleState.enemies].filter(u => u.hp > 0);
+            allUnits.sort((a, b) => b.spd - a.spd);
+            battleState.turnOrder = allUnits;
+            renderTimeline();
+        }
+
+        function renderTimeline() {
+            const list = document.getElementById('timeline-list');
+            list.innerHTML = '';
+            battleState.turnOrder.forEach((unit, idx) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.style.padding = '6px 10px';
+                if (idx === battleState.activeUnitIndex) item.style.borderLeft = '4px solid var(--accent-gold)';
+                item.innerHTML = `<span>${unit.icon} ${unit.name}</span> <small>SPD: ${unit.spd}</small>`;
+                list.appendChild(item);
+            });
+        }
+
+        function renderBattlefield() {
+            const hZone = document.getElementById('heroes-zone');
+            const eZone = document.getElementById('enemies-zone');
+            hZone.innerHTML = '';
+            eZone.innerHTML = '';
+
+            battleState.heroes.forEach(unit => hZone.appendChild(createUnitCard(unit, 'hero')));
+            battleState.enemies.forEach(unit => eZone.appendChild(createUnitCard(unit, 'enemy')));
+        }
+
+        function createUnitCard(unit, team) {
+            const card = document.createElement('div');
+            const activeUnit = battleState.turnOrder[battleState.activeUnitIndex];
+            const isActive = activeUnit && activeUnit.id === unit.id && activeUnit.hp > 0;
+            
+            card.className = `combatant-card ${isActive ? 'active-turn' : ''}`;
+            if (battleState.activeAction && team === 'enemy' && unit.hp > 0) {
+                card.classList.add('targetable');
+                card.onclick = () => executePlayerAction(unit);
+            }
+
+            const hpPct = Math.max(0, (unit.hp / unit.maxHp) * 100);
+            const mpPct = Math.max(0, (unit.mp / unit.maxMp) * 100);
+
+            card.innerHTML = `
+                <div class="avatar">${unit.icon}</div>
+                <strong>${unit.name}</strong>
+                <div class="stat-bar"><div class="stat-fill hp" style="width: ${hpPct}%"></div></div>
+                <div class="stat-bar"><div class="stat-fill mp" style="width: ${mpPct}%"></div></div>
+            `;
+            return card;
+        }
+
+        function startTurn() {
+            if (checkBattleEnd()) return;
+
+            const unit = battleState.turnOrder[battleState.activeUnitIndex];
+            if (!unit || unit.hp <= 0) {
+                nextTurn();
+                return;
+            }
+
+            renderTimeline();
+            renderBattlefield();
+
+            const isHero = battleState.heroes.some(h => h.id === unit.id);
+            if (isHero) {
+                logMessage(`It is ${unit.name}'s turn. Choose an action.`, "player");
+                setControlsEnabled(true);
+                if (gameState.autoPlay) {
+                    setTimeout(() => {
+                        const targets = battleState.enemies.filter(e => e.hp > 0);
+                        selectAction('attack');
+                        executePlayerAction(targets[Math.floor(Math.random() * targets.length)]);
+                    }, 800);
+                }
+            } else {
+                setControlsEnabled(false);
+                setTimeout(() => enemyAIAction(unit), 1000);
+            }
+        }
+
+        function selectAction(type) {
+            battleState.activeAction = type;
+            logMessage(`Select a target for ${type.toUpperCase()}.`, "system");
+            renderBattlefield();
+        }
+
+        function executePlayerAction(target) {
+            const attacker = battleState.turnOrder[battleState.activeUnitIndex];
+            let damage = Math.max(5, attacker.atk - target.def);
+
+            if (battleState.activeAction === 'skill') {
+                if (attacker.mp >= 20) {
+                    attacker.mp -= 20;
+                    damage = Math.floor(damage * 1.8);
+                    logMessage(`${attacker.name} used ${attacker.skill || 'Special Skill'} on ${target.name}!`, "player");
+                } else {
+                    logMessage("Not enough Mana! Regular attack used instead.", "system");
+                }
+            } else {
+                logMessage(`${attacker.name} attacks ${target.name}!`, "player");
+            }
+
+            target.hp = Math.max(0, target.hp - damage);
+            logMessage(`${target.name} takes ${damage} damage.`, "player");
+
+            battleState.activeAction = null;
+            nextTurn();
+        }
+
+        function enemyAIAction(enemy) {
+            const targets = battleState.heroes.filter(h => h.hp > 0);
+            if (targets.length === 0) return;
+
+            const target = targets[Math.floor(Math.random() * targets.length)];
+            const damage = Math.max(5, enemy.atk - target.def);
+            target.hp = Math.max(0, target.hp - damage);
+
+            logMessage(`${enemy.name} attacks ${target.name} for ${damage} damage!`, "enemy");
+            nextTurn();
+        }
+
+        function nextTurn() {
+            battleState.activeUnitIndex = (battleState.activeUnitIndex + 1) % battleState.turnOrder.length;
+            startTurn();
+        }
+
+        function setControlsEnabled(enabled) {
+            document.querySelectorAll('.action-btn').forEach(btn => btn.disabled = !enabled);
+        }
+
+        function toggleAuto() {
+            gameState.autoPlay = !gameState.autoPlay;
+            document.getElementById('btn-auto').style.borderColor = gameState.autoPlay ? 'var(--accent-gold)' : 'var(--border-color)';
+            logMessage(`Auto-battle ${gameState.autoPlay ? 'ENABLED' : 'DISABLED'}.`, "system");
+            if (gameState.autoPlay) startTurn();
+        }
+
+        function checkBattleEnd() {
+            const heroesAlive = battleState.heroes.some(h => h.hp > 0);
+            const enemiesAlive = battleState.enemies.some(e => e.hp > 0);
+
+            if (!enemiesAlive) {
+                logMessage("VICTORY! All enemies defeated. Rewards: +200 Gold, +10 Gems.", "system");
+                gameState.currencies.gold += 200;
+                gameState.currencies.gems += 10;
+                updateCurrencies();
+                setControlsEnabled(false);
+                return true;
+            }
+
+            if (!heroesAlive) {
+                logMessage("DEFEAT! Your party was wiped out.", "enemy");
+                setControlsEnabled(false);
+                return true;
+            }
+
+            return false;
+        }
+
+        // --- GACHA SYSTEM ---
+        function performSummon(count) {
+            const cost = count * 10;
+            if (gameState.currencies.gems < cost) {
+                alert("Not enough Gems!");
+                return;
+            }
+
+            gameState.currencies.gems -= cost;
+            const container = document.getElementById('summon-results');
+            container.innerHTML = '';
+
+            for (let i = 0; i < count; i++) {
+                gameState.pity++;
+                let pull;
+
+                if (gameState.pity >= 100) {
+                    pull = HERO_DATABASE.find(h => h.rarity === 'SSR');
+                    gameState.pity = 0;
+                } else {
+                    const rand = Math.random();
+                    if (rand < 0.05) {
+                        pull = HERO_DATABASE.filter(h => h.rarity === 'SSR')[Math.floor(Math.random() * 2)];
+                        gameState.pity = 0;
+                    } else if (rand < 0.25) {
+                        pull = HERO_DATABASE.find(h => h.rarity === 'SR');
+                    } else {
+                        pull = HERO_DATABASE.find(h => h.rarity === 'R');
+                    }
+                }
+
+                gameState.roster.push(JSON.parse(JSON.stringify(pull)));
+
+                const card = document.createElement('div');
+                card.className = `unit-card rarity-${pull.rarity}`;
+                card.style.width = '100px';
+                card.style.textAlign = 'center';
+                card.innerHTML = `<div class="avatar">${pull.icon}</div><strong>${pull.name}</strong><br><small class="rarity-${pull.rarity}">${pull.rarity}</small>`;
+                container.appendChild(card);
+            }
+
+            updateCurrencies();
+        }
+
+        // --- ROSTER TAB RENDER ---
+        function renderRoster() {
+            const grid = document.getElementById('roster-grid');
+            grid.innerHTML = '';
+
+            gameState.roster.forEach(hero => {
+                const card = document.createElement('div');
+                card.className = `unit-card rarity-${hero.rarity}`;
+                card.innerHTML = `
+                    <div class="unit-header">
+                        <strong>${hero.name}</strong>
+                        <span class="rarity-badge rarity-${hero.rarity}">${hero.rarity}</span>
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">${hero.title}</p>
+                    <div class="avatar">${hero.icon}</div>
+                    <div style="font-size:0.85rem;">
+                        🗡️ ATK: ${hero.atk} | 🛡️ DEF: ${hero.def}<br>
+                        ⚡ SPD: ${hero.spd} | ❤️ HP: ${hero.hp}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- QUESTS RENDER ---
+        function renderQuests() {
+            const list = document.getElementById('quest-list');
+            list.innerHTML = '';
+            gameState.quests.forEach(q => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${q.name}</strong><br>
+                        <small style="color:var(--accent-gold);">Reward: ${q.reward} ${q.gems ? 'Gems' : 'Gold'}</small>
+                    </div>
+                    <button class="action-btn" style="width: auto; padding: 6px 16px;" ${q.done ? 'disabled' : ''} onclick="claimQuest('${q.id}')">
+                        ${q.done ? 'Claimed' : 'Claim'}
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function claimQuest(id) {
+            const q = gameState.quests.find(x => x.id === id);
+            if (q && !q.done) {
+                q.done = true;
+                if (q.gems) gameState.currencies.gems += q.reward;
+                else gameState.currencies.gold += q.reward;
+                updateCurrencies();
+                renderQuests();
+            }
+        }
+
+        // --- INVENTORY RENDER ---
+        function renderInventory() {
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = '';
+            gameState.inventory.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'list-item';
+                el.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:1.5rem;">${item.icon}</span>
+                        <div>
+                            <strong>${item.name} (x${item.count})</strong><br>
+                            <small style="color:var(--text-muted);">${item.desc}</small>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        // --- INITIALIZATION ---
+        updateCurrencies();
+        initBattle();
+    </script>
+</body>
+</html>

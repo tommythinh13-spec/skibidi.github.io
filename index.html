@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Fantasy Turn-Based RPG - Ultimate Edition</title>
+    <title>Chronicles of Shadow - Ultimate VFX Edition</title>
     <style>
         :root {
-            --bg-dark: #0a0b10;
-            --bg-panel: #141722;
-            --bg-card: #1c2030;
-            --accent-gold: #d4af37;
-            --accent-red: #a83232;
-            --accent-blue: #326ea8;
-            --accent-green: #32a852;
-            --accent-purple: #7032a8;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --border-color: #2e354a;
+            --bg-dark: #08090d;
+            --bg-panel: #12151f;
+            --bg-card: #1a1e2e;
+            --accent-gold: #f39c12;
+            --accent-red: #e74c3c;
+            --accent-blue: #3498db;
+            --accent-green: #2ecc71;
+            --accent-purple: #9b59b6;
+            --text-main: #ecf0f1;
+            --text-muted: #bdc3c7;
+            --border-color: #2c3e50;
         }
 
         * {
@@ -34,6 +34,7 @@
             display: flex;
             flex-direction: column;
             padding: 15px;
+            overflow-x: hidden;
         }
 
         header {
@@ -52,7 +53,7 @@
             font-weight: bold;
             color: var(--accent-gold);
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.4);
         }
 
         .currency-bar {
@@ -65,14 +66,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 14px;
             border-radius: 20px;
             border: 1px solid var(--border-color);
         }
 
         .currency.gold { color: var(--accent-gold); }
-        .currency.gems { color: #38bdf8; }
+        .currency.gems { color: #00d2d3; }
 
         nav {
             display: flex;
@@ -102,7 +103,7 @@
             background: var(--accent-gold);
             color: #000;
             border-color: var(--accent-gold);
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 12px rgba(243, 156, 18, 0.4);
         }
 
         .tab-content {
@@ -116,12 +117,12 @@
             gap: 15px;
         }
 
-        /* --- BATTLE SCREEN --- */
+        /* --- BATTLE FIELD & VISUAL FX --- */
         .battle-layout {
             display: grid;
-            grid-template-columns: 280px 1fr 300px;
+            grid-template-columns: 260px 1fr 300px;
             gap: 15px;
-            height: 600px;
+            height: 620px;
         }
 
         .side-panel {
@@ -144,7 +145,7 @@
         }
 
         .battle-field {
-            background: radial-gradient(circle, #1a2035 0%, #0d0f18 100%);
+            background: radial-gradient(circle, #1c2333 0%, #090a0f 100%);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             position: relative;
@@ -159,15 +160,15 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            height: 200px;
+            height: 220px;
         }
 
         .combatant-card {
             background: var(--bg-card);
             border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 10px;
-            width: 140px;
+            width: 150px;
             text-align: center;
             position: relative;
             transition: transform 0.2s, border-color 0.2s;
@@ -175,31 +176,37 @@
 
         .combatant-card.active-turn {
             border-color: var(--accent-gold);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.6);
+            animation: idleFloating 2s infinite ease-in-out;
         }
 
         .combatant-card.targetable {
             cursor: pointer;
             border-color: var(--accent-red);
+            animation: targetPulse 1s infinite alternate;
         }
 
-        .combatant-card.targetable:hover {
-            transform: scale(1.05);
-        }
-
-        .avatar {
-            width: 60px;
-            height: 60px;
+        /* --- NGOẠI HÌNH NHÂN VẬT & HIỆU ỨNG TRANG PHỤC --- */
+        .avatar-frame {
+            width: 85px;
+            height: 85px;
             margin: 0 auto 8px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
+            font-size: 2.8rem;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.8) 100%);
+            border: 3px solid var(--border-color);
+            position: relative;
+            box-shadow: inset 0 0 10px #000;
         }
+
+        /* Aura ngoại hình theo hệ / vai trò */
+        .aura-knight { border-color: #e74c3c; box-shadow: 0 0 12px rgba(231, 76, 60, 0.5); }
+        .aura-mage { border-color: #9b59b6; box-shadow: 0 0 12px rgba(155, 89, 182, 0.5); }
+        .aura-priest { border-color: #f1c40f; box-shadow: 0 0 12px rgba(241, 196, 15, 0.5); }
+        .aura-archer { border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.5); }
 
         .stat-bar {
             height: 8px;
@@ -207,20 +214,140 @@
             border-radius: 4px;
             overflow: hidden;
             margin-top: 4px;
-            position: relative;
         }
 
         .stat-fill {
             height: 100%;
             width: 100%;
-            transition: width 0.3s;
+            transition: width 0.4s ease;
         }
 
-        .stat-fill.hp { background: var(--accent-red); }
-        .stat-fill.mp { background: var(--accent-blue); }
+        .stat-fill.hp { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+        .stat-fill.mp { background: linear-gradient(90deg, #2980b9, #3498db); }
+
+        /* --- VFX ĐÒN ĐÁNH & ANIMATION --- */
+        @keyframes idleFloating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes targetPulse {
+            0% { transform: scale(1); box-shadow: 0 0 5px var(--accent-red); }
+            100% { transform: scale(1.06); box-shadow: 0 0 20px var(--accent-red); }
+        }
+
+        /* Chặt chém vật lý */
+        .anim-slash {
+            animation: slashAttack 0.4s ease-in-out;
+        }
+        @keyframes slashAttack {
+            0% { transform: scale(1) translateX(0); }
+            40% { transform: scale(1.25) translateX(50px) rotate(15deg); }
+            100% { transform: scale(1) translateX(0); }
+        }
+
+        /* Bắn chưởng / Phép thuật */
+        .anim-cast {
+            animation: magicCast 0.5s ease-in-out;
+        }
+        @keyframes magicCast {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.3); filter: brightness(2) drop-shadow(0 0 25px var(--accent-purple)); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        /* Bị trúng đòn (Giật lùi + phát sáng đỏ) */
+        .anim-hit {
+            animation: hitReaction 0.35s ease-in-out;
+        }
+        @keyframes hitReaction {
+            0%, 100% { transform: translateX(0); filter: none; }
+            20% { transform: translateX(-15px) rotate(-5deg); filter: brightness(3) drop-shadow(0 0 15px red); }
+            50% { transform: translateX(15px) rotate(5deg); }
+            75% { transform: translateX(-5px); }
+        }
+
+        /* Phòng thủ (Vòng bảo vệ) */
+        .anim-shield {
+            animation: shieldBlock 0.5s ease-in-out;
+        }
+        @keyframes shieldBlock {
+            0%, 100% { box-shadow: none; }
+            50% { box-shadow: 0 0 30px var(--accent-blue); border-color: #00d2d3; }
+        }
+
+        /* Hiệu ứng chém vết kiếm overlay trên mục tiêu */
+        .slash-fx {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #fff, var(--accent-red), transparent);
+            transform: translate(-50%, -50%) rotate(-45deg);
+            animation: slashSlash 0.3s ease-out forwards;
+            pointer-events: none;
+            z-index: 30;
+        }
+        @keyframes slashSlash {
+            0% { width: 0px; opacity: 1; }
+            100% { width: 140px; opacity: 0; }
+        }
+
+        /* Số sát thương nhảy ra */
+        .damage-pop {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #ff3838;
+            text-shadow: 0 0 6px #000;
+            animation: floatDamage 0.8s forwards ease-out;
+            pointer-events: none;
+            z-index: 40;
+        }
+        @keyframes floatDamage {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -50px) scale(1); }
+        }
+
+        /* --- STORYLINE MODAL --- */
+        .story-box {
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            right: 20px;
+            background: rgba(18, 21, 31, 0.95);
+            border: 2px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 50;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .story-avatar {
+            font-size: 2.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story-content { flex: 1; }
+        .story-speaker { color: var(--accent-gold); font-weight: bold; margin-bottom: 4px; }
+        .story-text { font-size: 0.9rem; line-height: 1.4; }
 
         .battle-controls {
-            background: rgba(10, 11, 16, 0.85);
+            background: rgba(10, 11, 16, 0.9);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 12px;
@@ -237,16 +364,17 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
 
         .action-btn:hover:not(:disabled) {
             background: var(--border-color);
             border-color: var(--accent-gold);
+            transform: translateY(-2px);
         }
 
         .action-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
@@ -264,7 +392,7 @@
         .log-entry.enemy { color: #f87171; }
         .log-entry.system { color: var(--accent-gold); }
 
-        /* --- ROSTER TAB --- */
+        /* --- ROSTER --- */
         .roster-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -304,7 +432,7 @@
         .rarity-SR { color: var(--accent-purple); }
         .rarity-R { color: var(--accent-blue); }
 
-        /* --- GACHA TAB --- */
+        /* --- GACHA ANIMATED --- */
         .gacha-container {
             display: flex;
             flex-direction: column;
@@ -316,6 +444,8 @@
             padding: 40px;
             flex: 1;
             gap: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
         .gacha-banner {
@@ -329,7 +459,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(112, 50, 168, 0.3);
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
             text-align: center;
             padding: 20px;
         }
@@ -352,17 +482,25 @@
             transition: transform 0.1s;
         }
 
-        .btn-gacha:active { transform: scale(0.96); }
+        .btn-gacha:active { transform: scale(0.95); }
 
         .pull-result {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 15px;
         }
 
-        /* --- QUEST & INVENTORY --- */
+        .gacha-reveal {
+            animation: cardReveal 0.6s ease-out forwards;
+        }
+        @keyframes cardReveal {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* --- QUESTS & INVENTORY --- */
         .list-container {
             display: flex;
             flex-direction: column;
@@ -391,35 +529,43 @@
     </header>
 
     <nav>
-        <div class="nav-btn active" onclick="switchTab('battle')">⚔️ Battle</div>
-        <div class="nav-btn" onclick="switchTab('roster')">🛡️ Hero Roster</div>
-        <div class="nav-btn" onclick="switchTab('gacha')">🔮 Summon</div>
-        <div class="nav-btn" onclick="switchTab('quests')">📜 Quests</div>
-        <div class="nav-btn" onclick="switchTab('inventory')">🎒 Inventory</div>
+        <div class="nav-btn active" onclick="switchTab('battle')">⚔️ Trận Chiến</div>
+        <div class="nav-btn" onclick="switchTab('roster')">🛡️ Anh Hùng</div>
+        <div class="nav-btn" onclick="switchTab('gacha')">🔮 Triệu Hồi</div>
+        <div class="nav-btn" onclick="switchTab('quests')">📜 Nhiệm Vụ</div>
+        <div class="nav-btn" onclick="switchTab('inventory')">🎒 Kho Đồ</div>
     </nav>
 
     <!-- BATTLE TAB -->
     <div id="tab-battle" class="tab-content active">
         <div class="battle-layout">
             <div class="side-panel">
-                <div class="panel-title">Turn Timeline</div>
+                <div class="panel-title">Thứ Tự Lượt Đánh</div>
                 <div id="timeline-list" class="list-container"></div>
             </div>
 
             <div class="battle-field">
+                <div id="story-modal" class="story-box" style="display: none;">
+                    <div class="story-avatar" id="story-avatar">🧙‍♂️</div>
+                    <div class="story-content">
+                        <div class="story-speaker" id="story-speaker">Pháp Sư Cổ Đại</div>
+                        <div class="story-text" id="story-text">Hãy cẩn thận! Bóng tối đang tràn về từ vực thẫm Abyss...</div>
+                    </div>
+                </div>
+
                 <div id="enemies-zone" class="battle-zone"></div>
                 <div id="heroes-zone" class="battle-zone"></div>
 
                 <div class="battle-controls">
-                    <button class="action-btn" id="btn-attack" onclick="selectAction('attack')">⚔️ Attack</button>
-                    <button class="action-btn" id="btn-skill" onclick="selectAction('skill')">✨ Skill</button>
-                    <button class="action-btn" id="btn-defend" onclick="selectAction('defend')">🛡️ Defend</button>
-                    <button class="action-btn" id="btn-auto" onclick="toggleAuto()">🤖 Auto Play</button>
+                    <button class="action-btn" id="btn-attack" onclick="selectAction('attack')">⚔️ Tấn Công</button>
+                    <button class="action-btn" id="btn-skill" onclick="selectAction('skill')">✨ Tuyệt Kỹ</button>
+                    <button class="action-btn" id="btn-defend" onclick="selectAction('defend')">🛡️ Phòng Thủ</button>
+                    <button class="action-btn" id="btn-auto" onclick="toggleAuto()">🤖 Tự Động</button>
                 </div>
             </div>
 
             <div class="side-panel">
-                <div class="panel-title">Combat Log</div>
+                <div class="panel-title">Nhật Ký Chiến Đấu</div>
                 <div id="combat-log" class="log-box"></div>
             </div>
         </div>
@@ -435,12 +581,12 @@
         <div class="gacha-container">
             <div class="gacha-banner">
                 <h2 style="color: var(--accent-gold); margin-bottom: 8px;">Covenant of the Abyss</h2>
-                <p style="color: var(--text-muted);">Summon powerful SSR heroes to aid your campaign!</p>
-                <p style="margin-top: 15px; font-size: 0.85rem;">Pity Counter: <span id="pity-count" style="color: var(--accent-gold);">0</span>/100</p>
+                <p style="color: var(--text-muted);">Triệu hồi anh hùng SSR huyền thoại để chinh phục bóng tối!</p>
+                <p style="margin-top: 15px; font-size: 0.85rem;">Bảo Hiểm (Pity): <span id="pity-count" style="color: var(--accent-gold);">0</span>/100</p>
             </div>
             <div class="gacha-actions">
-                <button class="btn-gacha" onclick="performSummon(1)">Summon 1x (10 💎)</button>
-                <button class="btn-gacha" onclick="performSummon(10)">Summon 10x (100 💎)</button>
+                <button class="btn-gacha" onclick="performSummon(1)">Triệu Hồi x1 (10 💎)</button>
+                <button class="btn-gacha" onclick="performSummon(10)">Triệu Hồi x10 (100 💎)</button>
             </div>
             <div id="summon-results" class="pull-result"></div>
         </div>
@@ -459,28 +605,28 @@
     <script>
         // --- GAME DATA STRUCTURES ---
         const HERO_DATABASE = [
-            { id: 'h1', name: 'Valerius', title: 'Shadow Knight', rarity: 'SSR', icon: '🗡️', hp: 450, maxHp: 450, mp: 100, maxMp: 100, atk: 55, def: 30, spd: 18, skill: 'Shadow Strike' },
-            { id: 'h2', name: 'Aurelia', title: 'High Priestess', rarity: 'SR', icon: '🪄', hp: 320, maxHp: 320, mp: 180, maxMp: 180, atk: 35, def: 18, spd: 14, skill: 'Holy Light' },
-            { id: 'h3', name: 'Ignis', title: 'Pyromancer', rarity: 'SSR', icon: '🔥', hp: 280, maxHp: 280, mp: 200, maxMp: 200, atk: 65, def: 12, spd: 16, skill: 'Fireball' },
-            { id: 'h4', name: 'Kael', title: 'Rogue Archer', rarity: 'R', icon: '🏹', hp: 350, maxHp: 350, mp: 80, maxMp: 80, atk: 45, def: 20, spd: 22, skill: 'Multi-Shot' }
+            { id: 'h1', name: 'Valerius', title: 'Hiệp Sĩ Bóng Đêm', rarity: 'SSR', icon: '🗡️️', aura: 'aura-knight', hp: 450, maxHp: 450, mp: 100, maxMp: 100, atk: 65, def: 30, spd: 18, skill: 'Trảm Hồn Abyssal' },
+            { id: 'h2', name: 'Aurelia', title: 'Thánh Nữ Ánh Sáng', rarity: 'SR', icon: '🪄', aura: 'aura-priest', hp: 320, maxHp: 320, mp: 180, maxMp: 180, atk: 35, def: 18, spd: 14, skill: 'Ánh Sáng Cứu Rỗi' },
+            { id: 'h3', name: 'Ignis', title: 'Đại Pháp Sư Lửa', rarity: 'SSR', icon: '🔥', aura: 'aura-mage', hp: 280, maxHp: 280, mp: 200, maxMp: 200, atk: 75, def: 12, spd: 16, skill: 'Hỏa Cầu Bão Tố' },
+            { id: 'h4', name: 'Kael', title: 'Thợ Săn Bóng Tối', rarity: 'R', icon: '🏹', aura: 'aura-archer', hp: 350, maxHp: 350, mp: 80, maxMp: 80, atk: 48, def: 20, spd: 22, skill: 'Mưa Tên Độc' }
         ];
 
         const ENEMY_DATABASE = [
-            { id: 'e1', name: 'Skeleton Warrior', icon: '💀', hp: 300, maxHp: 300, mp: 0, maxMp: 0, atk: 40, def: 15, spd: 12 },
-            { id: 'e2', name: 'Abyssal Specter', icon: '👻', hp: 250, maxHp: 250, mp: 50, maxMp: 50, atk: 50, def: 10, spd: 15 },
-            { id: 'e3', name: 'Gargoyle Lord', icon: '🗿', hp: 600, maxHp: 600, mp: 0, maxMp: 0, atk: 60, def: 40, spd: 8 }
+            { id: 'e1', name: 'Chiến Binh Xương', icon: '💀', aura: 'aura-knight', hp: 300, maxHp: 300, mp: 0, maxMp: 0, atk: 42, def: 15, spd: 12 },
+            { id: 'e2', name: 'Bóng Ma Vực Thẫm', icon: '👻', aura: 'aura-mage', hp: 250, maxHp: 250, mp: 50, maxMp: 50, atk: 55, def: 10, spd: 15 },
+            { id: 'e3', name: 'Chúa Tể Quỷ Đá', icon: '🗿', aura: 'aura-knight', hp: 650, maxHp: 650, mp: 0, maxMp: 0, atk: 70, def: 38, spd: 8 }
         ];
 
         let gameState = {
-            currencies: { gold: 1200, gems: 250 },
+            currencies: { gold: 1500, gems: 300 },
             roster: JSON.parse(JSON.stringify([HERO_DATABASE[0], HERO_DATABASE[1]])),
             inventory: [
-                { id: 'i1', name: 'Health Potion', count: 5, icon: '🧪', desc: 'Restores 150 HP' },
-                { id: 'i2', name: 'Mana Ether', count: 3, icon: '💧', desc: 'Restores 80 MP' }
+                { id: 'i1', name: 'Máu Trung', count: 5, icon: '🧪', desc: 'Hồi phục 150 HP' },
+                { id: 'i2', name: 'Năng Lượng', count: 3, icon: '💧', desc: 'Hồi phục 80 MP' }
             ],
             quests: [
-                { id: 'q1', name: 'Clear the Undead Crypt', reward: 500, done: false },
-                { id: 'q2', name: 'Summon 3 Heroes', reward: 50, gems: true, done: false }
+                { id: 'q1', name: 'Tiêu diệt 2 quái vật Crypt', reward: 500, done: false },
+                { id: 'q2', name: 'Triệu hồi 3 Anh Hùng', reward: 50, gems: true, done: false }
             ],
             pity: 0,
             autoPlay: false
@@ -493,6 +639,33 @@
             heroes: [],
             enemies: []
         };
+
+        // --- STORYLINE DIALOGUE ---
+        const STORY_LINES = [
+            { speaker: "Valerius", avatar: "🗡️", text: "Tà khí ở hầm ngục này ngày càng đậm đặc... Hãy cẩn thận!" },
+            { speaker: "Aurelia", avatar: "🪄", text: "Tôi cảm nhận được lũ quái vật đang đến gần. Chuẩn bị chiến đấu!" }
+        ];
+
+        function playStoryline() {
+            const modal = document.getElementById('story-modal');
+            let lineIdx = 0;
+            modal.style.display = 'flex';
+
+            const updateStory = () => {
+                if (lineIdx < STORY_LINES.length) {
+                    const line = STORY_LINES[lineIdx];
+                    document.getElementById('story-speaker').innerText = line.speaker;
+                    document.getElementById('story-avatar').innerText = line.avatar;
+                    document.getElementById('story-text').innerText = line.text;
+                    lineIdx++;
+                    setTimeout(updateStory, 2500);
+                } else {
+                    modal.style.display = 'none';
+                    startTurn();
+                }
+            };
+            updateStory();
+        }
 
         // --- SYSTEM ENGINE ---
         function switchTab(tabId) {
@@ -522,15 +695,15 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        // --- BATTLE SYSTEM ---
+        // --- BATTLE SYSTEM WITH VFX ---
         function initBattle() {
             battleState.heroes = JSON.parse(JSON.stringify(gameState.roster));
             battleState.enemies = JSON.parse(JSON.stringify(ENEMY_DATABASE.slice(0, 2)));
 
-            logMessage("A new encounter begins!", "system");
+            logMessage("Cuộc chạm trán bắt đầu!", "system");
             calculateTurnOrder();
             renderBattlefield();
-            startTurn();
+            playStoryline();
         }
 
         function calculateTurnOrder() {
@@ -565,8 +738,9 @@
 
         function createUnitCard(unit, team) {
             const card = document.createElement('div');
+            card.id = `card-${unit.id}`;
             const activeUnit = battleState.turnOrder[battleState.activeUnitIndex];
-            const isActive = activeUnit && activeUnit.id === unit.id && activeUnit.hp > 0;
+            const isActive = activeUnit && activeUnit.id === unit.id && unit.hp > 0;
             
             card.className = `combatant-card ${isActive ? 'active-turn' : ''}`;
             if (battleState.activeAction && team === 'enemy' && unit.hp > 0) {
@@ -578,12 +752,34 @@
             const mpPct = Math.max(0, (unit.mp / unit.maxMp) * 100);
 
             card.innerHTML = `
-                <div class="avatar">${unit.icon}</div>
+                <div class="avatar-frame ${unit.aura || ''}">${unit.icon}</div>
                 <strong>${unit.name}</strong>
                 <div class="stat-bar"><div class="stat-fill hp" style="width: ${hpPct}%"></div></div>
                 <div class="stat-bar"><div class="stat-fill mp" style="width: ${mpPct}%"></div></div>
             `;
             return card;
+        }
+
+        function popVFX(targetId, text, isSkill = false) {
+            const card = document.getElementById(`card-${targetId}`);
+            if (!card) return;
+
+            // Vết chém chéo
+            const slash = document.createElement('div');
+            slash.className = 'slash-fx';
+            if (isSkill) slash.style.background = 'linear-gradient(90deg, transparent, #fff, var(--accent-purple), transparent)';
+            card.appendChild(slash);
+
+            // Chữ số sát thương
+            const pop = document.createElement('div');
+            pop.className = 'damage-pop';
+            pop.innerText = text;
+            card.appendChild(pop);
+
+            setTimeout(() => {
+                slash.remove();
+                pop.remove();
+            }, 800);
         }
 
         function startTurn() {
@@ -600,7 +796,7 @@
 
             const isHero = battleState.heroes.some(h => h.id === unit.id);
             if (isHero) {
-                logMessage(`It is ${unit.name}'s turn. Choose an action.`, "player");
+                logMessage(`Đến lượt ${unit.name}. Hãy chọn hành động.`, "player");
                 setControlsEnabled(true);
                 if (gameState.autoPlay) {
                     setTimeout(() => {
@@ -616,32 +812,56 @@
         }
 
         function selectAction(type) {
+            const attacker = battleState.turnOrder[battleState.activeUnitIndex];
+            if (type === 'defend') {
+                const card = document.getElementById(`card-${attacker.id}`);
+                card.classList.add('anim-shield');
+                logMessage(`${attacker.name} giơ khiên gia tăng phòng thủ!`, "player");
+                attacker.def += 15;
+                setTimeout(() => nextTurn(), 600);
+                return;
+            }
+
             battleState.activeAction = type;
-            logMessage(`Select a target for ${type.toUpperCase()}.`, "system");
+            logMessage(`Hãy nhấp vào quái vật để thi triển ${type === 'skill' ? 'Tuyệt Kỹ' : 'Đòn Đánh'}.`, "system");
             renderBattlefield();
         }
 
         function executePlayerAction(target) {
             const attacker = battleState.turnOrder[battleState.activeUnitIndex];
-            let damage = Math.max(5, attacker.atk - target.def);
+            const attackerCard = document.getElementById(`card-${attacker.id}`);
+            const targetCard = document.getElementById(`card-${target.id}`);
+
+            let damage = Math.max(10, attacker.atk - target.def);
+            let isSkill = false;
 
             if (battleState.activeAction === 'skill') {
                 if (attacker.mp >= 20) {
                     attacker.mp -= 20;
-                    damage = Math.floor(damage * 1.8);
-                    logMessage(`${attacker.name} used ${attacker.skill || 'Special Skill'} on ${target.name}!`, "player");
+                    damage = Math.floor(damage * 2.2);
+                    isSkill = true;
+                    attackerCard.classList.add('anim-cast');
+                    logMessage(`${attacker.name} vung gậy tung Tuyệt Kỹ [${attacker.skill}] lên ${target.name}!`, "player");
                 } else {
-                    logMessage("Not enough Mana! Regular attack used instead.", "system");
+                    logMessage("Không đủ Năng Lượng! Chuyển thành chém thường.", "system");
+                    attackerCard.classList.add('anim-slash');
                 }
             } else {
-                logMessage(`${attacker.name} attacks ${target.name}!`, "player");
+                attackerCard.classList.add('anim-slash');
+                logMessage(`${attacker.name} vung vũ khí chém trực diện vào ${target.name}!`, "player");
             }
 
-            target.hp = Math.max(0, target.hp - damage);
-            logMessage(`${target.name} takes ${damage} damage.`, "player");
+            setTimeout(() => {
+                targetCard.classList.add('anim-hit');
+                target.hp = Math.max(0, target.hp - damage);
+                popVFX(target.id, `-${damage}`, isSkill);
+                logMessage(`${target.name} bị trúng đòn, mất ${damage} HP.`, "player");
 
-            battleState.activeAction = null;
-            nextTurn();
+                setTimeout(() => {
+                    battleState.activeAction = null;
+                    nextTurn();
+                }, 450);
+            }, 300);
         }
 
         function enemyAIAction(enemy) {
@@ -649,11 +869,21 @@
             if (targets.length === 0) return;
 
             const target = targets[Math.floor(Math.random() * targets.length)];
-            const damage = Math.max(5, enemy.atk - target.def);
-            target.hp = Math.max(0, target.hp - damage);
+            const enemyCard = document.getElementById(`card-${enemy.id}`);
+            const targetCard = document.getElementById(`card-${target.id}`);
 
-            logMessage(`${enemy.name} attacks ${target.name} for ${damage} damage!`, "enemy");
-            nextTurn();
+            enemyCard.classList.add('anim-slash');
+
+            setTimeout(() => {
+                targetCard.classList.add('anim-hit');
+                const damage = Math.max(6, enemy.atk - target.def);
+                target.hp = Math.max(0, target.hp - damage);
+                popVFX(target.id, `-${damage}`);
+
+                logMessage(`${enemy.name} gầm lên tấn công ${target.name} gây ${damage} sát thương!`, "enemy");
+
+                setTimeout(() => nextTurn(), 450);
+            }, 300);
         }
 
         function nextTurn() {
@@ -668,7 +898,7 @@
         function toggleAuto() {
             gameState.autoPlay = !gameState.autoPlay;
             document.getElementById('btn-auto').style.borderColor = gameState.autoPlay ? 'var(--accent-gold)' : 'var(--border-color)';
-            logMessage(`Auto-battle ${gameState.autoPlay ? 'ENABLED' : 'DISABLED'}.`, "system");
+            logMessage(`Chế độ Tự Động: ${gameState.autoPlay ? 'BẬT' : 'TẮT'}.`, "system");
             if (gameState.autoPlay) startTurn();
         }
 
@@ -677,16 +907,16 @@
             const enemiesAlive = battleState.enemies.some(e => e.hp > 0);
 
             if (!enemiesAlive) {
-                logMessage("VICTORY! All enemies defeated. Rewards: +200 Gold, +10 Gems.", "system");
-                gameState.currencies.gold += 200;
-                gameState.currencies.gems += 10;
+                logMessage("CHIẾN THẮNG! Quái vật đã gục ngã. Nhận: +300 Vàng, +15 Kim Cương.", "system");
+                gameState.currencies.gold += 300;
+                gameState.currencies.gems += 15;
                 updateCurrencies();
                 setControlsEnabled(false);
                 return true;
             }
 
             if (!heroesAlive) {
-                logMessage("DEFEAT! Your party was wiped out.", "enemy");
+                logMessage("THẤT BẠI! Toàn đội hình đã bị hạ gục.", "enemy");
                 setControlsEnabled(false);
                 return true;
             }
@@ -694,11 +924,11 @@
             return false;
         }
 
-        // --- GACHA SYSTEM ---
+        // --- GACHA SYSTEM WITH ANIMATIONS ---
         function performSummon(count) {
             const cost = count * 10;
             if (gameState.currencies.gems < cost) {
-                alert("Not enough Gems!");
+                alert("Không đủ Kim Cương!");
                 return;
             }
 
@@ -728,17 +958,18 @@
                 gameState.roster.push(JSON.parse(JSON.stringify(pull)));
 
                 const card = document.createElement('div');
-                card.className = `unit-card rarity-${pull.rarity}`;
-                card.style.width = '100px';
+                card.className = `unit-card rarity-${pull.rarity} gacha-reveal`;
+                card.style.width = '120px';
                 card.style.textAlign = 'center';
-                card.innerHTML = `<div class="avatar">${pull.icon}</div><strong>${pull.name}</strong><br><small class="rarity-${pull.rarity}">${pull.rarity}</small>`;
+                card.style.animationDelay = `${i * 0.1}s`;
+                card.innerHTML = `<div class="avatar-frame ${pull.aura}">${pull.icon}</div><strong>${pull.name}</strong><br><small class="rarity-${pull.rarity}">${pull.rarity}</small>`;
                 container.appendChild(card);
             }
 
             updateCurrencies();
         }
 
-        // --- ROSTER TAB RENDER ---
+        // --- RENDERING TABS ---
         function renderRoster() {
             const grid = document.getElementById('roster-grid');
             grid.innerHTML = '';
@@ -752,7 +983,7 @@
                         <span class="rarity-badge rarity-${hero.rarity}">${hero.rarity}</span>
                     </div>
                     <p style="font-size:0.8rem; color:var(--text-muted);">${hero.title}</p>
-                    <div class="avatar">${hero.icon}</div>
+                    <div class="avatar-frame ${hero.aura}">${hero.icon}</div>
                     <div style="font-size:0.85rem;">
                         🗡️ ATK: ${hero.atk} | 🛡️ DEF: ${hero.def}<br>
                         ⚡ SPD: ${hero.spd} | ❤️ HP: ${hero.hp}
@@ -762,7 +993,6 @@
             });
         }
 
-        // --- QUESTS RENDER ---
         function renderQuests() {
             const list = document.getElementById('quest-list');
             list.innerHTML = '';
@@ -772,10 +1002,10 @@
                 item.innerHTML = `
                     <div>
                         <strong>${q.name}</strong><br>
-                        <small style="color:var(--accent-gold);">Reward: ${q.reward} ${q.gems ? 'Gems' : 'Gold'}</small>
+                        <small style="color:var(--accent-gold);">Phần thưởng: ${q.reward} ${q.gems ? 'Kim Cương' : 'Vàng'}</small>
                     </div>
                     <button class="action-btn" style="width: auto; padding: 6px 16px;" ${q.done ? 'disabled' : ''} onclick="claimQuest('${q.id}')">
-                        ${q.done ? 'Claimed' : 'Claim'}
+                        ${q.done ? 'Đã Nhận' : 'Nhận'}
                     </button>
                 `;
                 list.appendChild(item);
@@ -793,7 +1023,6 @@
             }
         }
 
-        // --- INVENTORY RENDER ---
         function renderInventory() {
             const list = document.getElementById('inventory-list');
             list.innerHTML = '';
